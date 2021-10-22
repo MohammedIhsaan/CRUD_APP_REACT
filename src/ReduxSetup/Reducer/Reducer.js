@@ -1,12 +1,17 @@
 import ActionTypes from "../ActionTypes"
 
 const initailState = {
-    Data : [1,2,3]
+    Data : [
+        {firstName: "Mohammed",
+        lastName: "Ihsaan",
+        }
+    ]
 }
 const Reducer = (state=initailState,action)=>{
              switch(action.type){
                  case ActionTypes.AddUser :
-                     return {...state,Data : action.payload};
+                 state.Data.push(action.payload)    
+                 return state ;
                  case ActionTypes.RemoveUser :
                      return {...state,Data : action.payload};
                  case ActionTypes.EditUser :

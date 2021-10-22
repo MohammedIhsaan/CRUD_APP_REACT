@@ -1,20 +1,26 @@
 import { Person,Delete, Edit} from '@material-ui/icons'
 import { Button } from '@material-ui/core'
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { useSelector ,useDispatch} from 'react-redux'
+import {AddUser} from './ReduxSetup/Action'
 import styled from 'styled-components'
 
 const Container = styled.div`
 display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: row;
 background-color:white;
 padding: 20px;
-margin-top: 15%;
-height: 50%;
+margin-top: 10%;
+/* height: 50%; */
 border-radius: 20px;
 margin-left: 25%;
 margin-right: 25%;
+/* width: 600px; */
+
 ` 
 const Title = styled.h1`
 text-align:center;
@@ -27,6 +33,7 @@ display: flex;
 align-items:center;
 justify-content: center;
 flex-direction: column;
+/* width: 50%; */
 ` 
 const Input = styled.input`
 text-align:center;
@@ -76,27 +83,28 @@ justify-content: center;
 
 export default function App() {
 
+  let data = useSelector(state=>state.AllData.Data)
   const [name,setName] = useState("")
   const [lastname,setLastName] = useState("")
+  const [fdata,setfData] = useState(0)
+  const dispatch = useDispatch()
 
-  let data = useSelector(state=>state)
-  console.log(data)
 
   const submitData = (e)=>{
-    e.preventDefault()
-    console.log("you Clicked me",e.target.value)
+    dispatch(AddUser({firstName:name,lastName:lastname}))
+    setfData(fdata+1)
   }
 
   const hadleChangeName = (e)=>{
-    console.log("you are typing",e.target.value)
-    setName(e.target.value)
-    
+    setName(e.target.value)  
   }
   const hadleChangeLastNAme = (e)=>{
-    console.log("you are typing",e.target.value)
-    setLastName(e.target.value)
-    
+    setLastName(e.target.value)  
   }
+
+  useEffect(()=>console.log('hi'),[fdata])
+
+
   return (
     <Container>
       <Form>
@@ -104,8 +112,7 @@ export default function App() {
         <Lable><Person style={{fontSize:"70px",color:"white"}} /></Lable>
         <Input onChange={(e)=>hadleChangeName(e)} placeholder='firstName' value={name}/>
         <Input onChange={(e)=>hadleChangeLastNAme(e)} placeholder='lastName' value={lastname}/>
-        <Input onClick={(e)=>submitData(e)} type='submit'/>
-        <Button  variant="outlined" style={{backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >ADD ME</Button>
+        <Button onChange={()=>console.log("something change")} onClick={(e)=>submitData(e)} variant="outlined" style={{backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >ADD ME</Button>
       </Form>
       <InfoAdded>
         <Title>USERS</Title>
@@ -114,17 +121,22 @@ export default function App() {
             <TableHead>Sr.No</TableHead>
             <TableHead>User Name</TableHead>
             <TableHead>Action</TableHead>
-          </TableRow>          
+          </TableRow> 
+          {data.map((item,i)=>{
+        return(
           <TableRow>
-            <TableData>1</TableData>
-            <TableData>Mohammed Ihsaan</TableData>
+            <TableData>{i+1}</TableData>
+            <TableData>{item.firstName} {item.lastName}</TableData>
             <TableData>
-              <ButtonContainer>
-              <Button variant="outlined" startIcon={<Edit/>} style= {{backgroundColor:"#00e676",marginRight:"10px",marginLeft:"10px",padding:"5px",flex:"1"}} >edit</Button>
-              <Button variant="outlined" startIcon={<Delete/>} style= {{flex:"1",backgroundColor:"#ef5350"}} >Delete</Button>
-              </ButtonContainer>
+            <ButtonContainer>
+            <Button variant="outlined" startIcon={<Edit/>} style= {{backgroundColor:"#00e676",marginRight:"10px",marginLeft:"10px",padding:"5px",flex:"1"}} >edit</Button>
+            <Button variant="outlined" startIcon={<Delete/>} style= {{flex:"1",backgroundColor:"#ef5350"}} >Delete</Button>
+            </ButtonContainer>
             </TableData>
-          </TableRow>
+        </TableRow>
+        )
+      })}         
+          
         </Table>
       </InfoAdded>
     </Container>
