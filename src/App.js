@@ -1,17 +1,17 @@
 import { Person,Delete, Edit} from '@material-ui/icons'
 import { Button } from '@material-ui/core'
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect ,useRef} from 'react'
 
 import { useSelector ,useDispatch} from 'react-redux'
-import {AddUser} from './ReduxSetup/Action'
+import {AddUser,EditUser,RemoveUser} from './ReduxSetup/Action'
 import styled from 'styled-components'
 
 const Container = styled.div`
 display: flex;
 justify-content: center;
 align-items: center;
-flex-direction: row;
+flex-direction: column;
 background-color:white;
 padding: 20px;
 margin-top: 10%;
@@ -35,6 +35,10 @@ justify-content: center;
 flex-direction: column;
 /* width: 50%; */
 ` 
+
+const InputContainer = styled.div`
+/* display: flex; */
+`
 const Input = styled.input`
 text-align:center;
 margin: 3px;
@@ -60,11 +64,6 @@ align-items:center;
 justify-content: center;
 flex-direction: column;
 ` 
-const Span = styled.span`
-margin: 10px;
-display: flex;
-flex-direction: column;
-` 
 
 const Table = styled.table``
 const TableRow = styled.tr`
@@ -87,6 +86,7 @@ export default function App() {
   const [name,setName] = useState("")
   const [lastname,setLastName] = useState("")
   const [fdata,setfData] = useState(0)
+  const [edit,setEdit] = useState(false)
   const dispatch = useDispatch()
 
 
@@ -102,17 +102,50 @@ export default function App() {
     setLastName(e.target.value)  
   }
 
+  const input1 = useRef()
+  const input2 = useRef()
+  const tabledata = useRef()
+  
+
+  const hnadleEdit = ()=>{
+   let tableValue= tabledata.current.innerHTML.split(' ')
+   input1.current.value=tableValue[0]
+   input2.current.value=tableValue[1]
+   setEdit(true)
+  }
+   
+  const handleUpdate = ()=>{
+   let tableValue= tabledata.current.innerHTML.split(' ')
+   setName(input1.current.value)
+   setLastName(input2.current.value)
+   console.log(tableValue, input1.current.value)
+   dispatch(EditUser({firstName:name,lastName:lastname,oldname:tableValue[0]}))
+   setfData(fdata+1)
+  }
+  const handleDelete = ()=>{
+   let tableValue= tabledata.current.innerHTML.split(' ')
+  //  setName(input1.current.value)
+  //  setLastName(input2.current.value)
+   console.log(tableValue)
+   dispatch(RemoveUser({firstName:tableValue[0],lastName:tableValue[1]}))
+   setfData(fdata+1)
+  }
+
   useEffect(()=>console.log('hi'),[fdata])
-
-
   return (
     <Container>
-      <Form>
       <Title>CRUD APP</Title>
+      <Form>
         <Lable><Person style={{fontSize:"70px",color:"white"}} /></Lable>
-        <Input onChange={(e)=>hadleChangeName(e)} placeholder='firstName' value={name}/>
-        <Input onChange={(e)=>hadleChangeLastNAme(e)} placeholder='lastName' value={lastname}/>
-        <Button onChange={()=>console.log("something change")} onClick={(e)=>submitData(e)} variant="outlined" style={{backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >ADD ME</Button>
+        <InputContainer>
+        <Input ref={input1} onChange={(e)=>hadleChangeName(e)} placeholder='firstName' value={name}/>
+        <Input ref={input2} onChange={(e)=>hadleChangeLastNAme(e)} placeholder='lastName' value={lastname}/>
+        </InputContainer>
+        {
+        
+        edit? <ButtonContainer> <Button onClick={()=>handleUpdate()} variant="outlined" style={{marginBottom:"30px",backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >Udate</Button> <Button onClick={()=>setEdit(false)} variant="outlined" style={{ marginLeft:'20px',marginBottom:"30px",backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >cancel</Button> </ButtonContainer> : <Button onClick={(e)=>submitData(e)} variant="outlined" style={{marginBottom:"30px",backgroundColor:"#ff9100", width:"100%",fontWeight:500}} >ADD ME</Button>
+            
+        }
       </Form>
       <InfoAdded>
         <Title>USERS</Title>
@@ -124,13 +157,13 @@ export default function App() {
           </TableRow> 
           {data.map((item,i)=>{
         return(
-          <TableRow>
+          <TableRow key={i} id={i}>
             <TableData>{i+1}</TableData>
-            <TableData>{item.firstName} {item.lastName}</TableData>
+            <TableData ref={tabledata}>{item.firstName} {item.lastName}</TableData>
             <TableData>
             <ButtonContainer>
-            <Button variant="outlined" startIcon={<Edit/>} style= {{backgroundColor:"#00e676",marginRight:"10px",marginLeft:"10px",padding:"5px",flex:"1"}} >edit</Button>
-            <Button variant="outlined" startIcon={<Delete/>} style= {{flex:"1",backgroundColor:"#ef5350"}} >Delete</Button>
+            <Button onClick={(e)=>hnadleEdit(e)} variant="outlined" startIcon={<Edit/>} style= {{backgroundColor:"#00e676",marginRight:"10px",marginLeft:"10px",padding:"5px",flex:"1"}} >edit</Button>
+            <Button  onClick={()=>handleDelete()} variant="outlined" startIcon={<Delete/>} style= {{flex:"1",backgroundColor:"#ef5350"}} >Delete</Button>
             </ButtonContainer>
             </TableData>
         </TableRow>
